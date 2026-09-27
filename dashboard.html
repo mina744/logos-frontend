@@ -33,14 +33,19 @@
 
     <!-- لوحة تحكم الآدمن (تظهر فقط لو الصلاحية admin) -->
     <div id="adminControls" class="max-w-6xl mx-auto px-6 mt-6 hidden">
-        <div class="bg-white p-4 rounded-xl shadow-md border border-blue-200 flex justify-between items-center">
+        <div class="bg-white p-4 rounded-xl shadow-md border border-blue-200 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h3 class="font-bold text-blue-900">لوحة تحكم المدير (Admin)</h3>
-                <p class="text-sm text-gray-500">لديك صلاحية كاملة لإدارة وإضافة وحذف الكورسات في المنصة.</p>
+                <p class="text-sm text-gray-500">لديك صلاحية كاملة لإدارة وإضافة وحذف الكورسات والاشتراكات في المنصة.</p>
             </div>
-            <button onclick="openAddCourseModal()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-blue-700 transition shadow-md">
-                ➕ إضافة كورس جديد
-            </button>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="openAddCourseModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md text-sm">
+                    ➕ إضافة كورس جديد
+                </button>
+                <a href="admin-subscriptions.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition shadow-md text-sm flex items-center gap-1">
+                    👥 إدارة الاشتراكات
+                </a>
+            </div>
         </div>
     </div>
 
