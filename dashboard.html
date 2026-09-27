@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية - مركز لوغوس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f7f3ec; color: #2b2b2b; }
+        .btn-primary { background-color: #8b0000; transition: background-color 0.3s; }
+        .btn-primary:hover { background-color: #600000; }
+        .stat-card { transition: transform 0.2s ease-in-out; }
+        .stat-card:hover { transform: translateY(-5px); }
+
+        /* تصميم الإشعارات العصرية (Toast) */
+        .toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { min-width: 250px; padding: 16px 24px; border-radius: 8px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; gap: 12px; transform: translateX(-150%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.success { background-color: #10B981; }
+        .toast.error { background-color: #EF4444; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+
+    <header class="bg-white shadow-md border-b-2 border-[#8b0000]">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="text-4xl">⛪</div><div class="text-4xl">📖</div>
+                <h1 class="text-xl font-bold text-[#8b0000] hidden md:block">مركز لوغوس للكورسات المتخصصة</h1>
+            </div>
+            <div class="flex gap-2">
+                <!-- زرار الملف الشخصي الجديد -->
+                <a href="profile.html" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300 transition font-bold shadow-md">الملف الشخصي</a>
+                <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition font-bold shadow-md">تسجيل الخروج</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- قسم الأدمن (الإحصائيات وإدارة الكورسات) -->
+        <div id="adminSection" class="hidden mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">👋 أهلاً بك يا مدير النظام</h2>
+                <a href="students.html" class="mt-4 md:mt-0 bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    👥 إدارة المشتركين والطلاب
+                </a>
+            </div>
+
+            <!-- كروت الإحصائيات -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="stat-card bg-white rounded-2xl p-6 shadow-md border-r-4 border-blue-500 flex items-center justify-between">
+                    <div><p class="text-gray-500 text-sm font-bold mb-1">إجمالي الطلاب</p><h3 id="statStudents" class="text-3xl font-bold text-gray-800">--</h3></div>
+                    <div class="text-4xl bg-blue-100 p-3 rounded-full">👨‍🎓</div>
+                </div>
+                <div class="stat-card bg-white rounded-2xl p-6 shadow-md border-r-4 border-[#8b0000] flex items-center justify-between">
+                    <div><p class="text-gray-500 text-sm font-bold mb-1">الكورسات المتاحة</p><h3 id="statCourses" class="text-3xl font-bold text-gray-800">--</h3></div>
+                    <div class="text-4xl bg-red-100 p-3 rounded-full">📚</div>
+                </div>
+                <div class="stat-card bg-white rounded-2xl p-6 shadow-md border-r-4 border-green-500 flex items-center justify-between">
+                    <div><p class="text-gray-500 text-sm font-bold mb-1">إجمالي المحاضرات</p><h3 id="statLectures" class="text-3xl font-bold text-gray-800">--</h3></div>
+                    <div class="text-4xl bg-green-100 p-3 rounded-full">🎥</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-[#8b0000]">
+                <h3 class="text-xl font-semibold mb-4 text-[#8b0000]">➕ إضافة كورس جديد</h3>
+                <form id="createCourseForm" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="w-full md:w-3/4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">اسم الكورس</label>
+                        <input type="text" id="courseTitle" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]">
+                    </div>
+                    <button type="submit" class="w-full md:w-1/4 text-white px-6 py-2 rounded-lg btn-primary font-semibold shadow-md">إنشاء الكورس</button>
+                </form>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">الكورسات المتاحة</h2>
+        <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <p class="text-gray-500 col-span-3">جاري تحميل الكورسات...</p>
+        </div>
+    </main>
+
+    <!-- حاوية الإشعارات -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        const userId = localStorage.getItem('userId');
+
+        if (!token) window.location.href = 'index.html';
+
+        if (role === 'admin') {
+            document.getElementById('adminSection').classList.remove('hidden');
+            fetchStats();
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        // دالة عرض الإشعارات العصرية
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : '⚠️';
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('http://localhost:5000/api/stats', { headers: { 'Authorization': `Bearer ${token}` }});
+                if (response.ok) {
+                    const stats = await response.json();
+                    animateValue("statStudents", 0, stats.studentsCount, 1000);
+                    animateValue("statCourses", 0, stats.coursesCount, 1000);
+                    animateValue("statLectures", 0, stats.lecturesCount, 1000);
+                }
+            } catch (err) { console.error('تعذر جلب الإحصائيات'); }
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) { document.getElementById(id).innerHTML = end; return; }
+            let range = end - start; let current = start; let increment = end > start ? 1 : -1;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            let obj = document.getElementById(id);
+            let timer = setInterval(function() {
+                current += increment; obj.innerHTML = current;
+                if (current == end) clearInterval(timer);
+            }, stepTime);
+        }
+
+        async function fetchCourses() {
+            try {
+                const response = await fetch('http://localhost:5000/api/courses', { headers: { 'Authorization': `Bearer ${token}`, 'userId': userId, 'role': role }});
+                if (response.status === 401 || response.status === 403) return logout();
+                const courses = await response.json();
+                const container = document.getElementById('coursesList');
+                container.innerHTML = '';
+                if (courses.length === 0) { container.innerHTML = '<p class="text-gray-500 col-span-3 text-center py-8">لا توجد كورسات متاحة حالياً.</p>'; return; }
+                
+                courses.forEach(course => {
+                    let deleteBtn = role === 'admin' ? `<button onclick="deleteCourse('${course._id}')" class="mt-3 w-full bg-red-100 text-red-700 py-2 rounded-lg font-bold hover:bg-red-200 transition text-sm">🗑️ حذف الكورس</button>` : '';
+                    container.innerHTML += `
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+                            <div><div class="w-14 h-14 bg-red-50 text-[#8b0000] rounded-2xl flex items-center justify-center text-2xl mb-4 border border-red-100 shadow-sm">📚</div><h3 class="text-xl font-bold text-gray-800 mb-2">${course.title}</h3><p class="text-gray-500 text-sm mb-6">اضغط للدخول وعرض المحاضرات الخاصة بهذا الكورس.</p></div>
+                            <div><a href="course.html?id=${course._id}" class="block text-center w-full bg-gray-50 text-[#8b0000] border-2 border-[#8b0000] py-2 rounded-lg font-bold hover:bg-[#8b0000] hover:text-white transition">عرض المحاضرات</a>${deleteBtn}</div>
+                        </div>`;
+                });
+            } catch (err) { showToast('تعذر الاتصال بالسيرفر وجلب الكورسات', 'error'); }
+        }
+
+        if (role === 'admin') {
+            document.getElementById('createCourseForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('courseTitle').value;
+                try {
+                    const response = await fetch('http://localhost:5000/api/courses', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title })
+                    });
+                    if (response.ok) {
+                        showToast('تم إنشاء الكورس بنجاح!', 'success');
+                        document.getElementById('courseTitle').value = '';
+                        fetchCourses(); fetchStats();
+                    } else { showToast('حدث خطأ أثناء الإنشاء', 'error'); }
+                } catch (err) { showToast('تعذر الاتصال بالسيرفر', 'error'); }
+            });
+        }
+
+        async function deleteCourse(id) {
+            if (confirm('تأكيد حذف الكورس وجميع محاضراته؟')) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/courses/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }});
+                    if (response.ok) { showToast('تم الحذف بنجاح', 'success'); fetchCourses(); fetchStats(); }
+                    else { showToast('حدث خطأ أثناء الحذف', 'error'); }
+                } catch (err) { showToast('تعذر الاتصال بالسيرفر', 'error'); }
+            }
+        }
+
+        fetchCourses();
+    </script>
+</body>
+</html>

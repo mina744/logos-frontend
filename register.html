@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - مركز لوغوس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f7f3ec;
+            color: #2b2b2b;
+        }
+        .btn-primary {
+            background-color: #8b0000;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #600000;
+        }
+        .text-primary {
+            color: #8b0000;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-8">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-t-4 border-[#8b0000]">
+        
+        <!-- قسم الإيموجيز -->
+        <div class="flex justify-between items-center mb-4 px-4">
+            <div class="text-5xl" title="كنيسة مارجرجس">⛪</div>
+            <div class="text-5xl" title="مركز لوغوس">📖</div>
+        </div>
+
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-primary mb-1">مركز لوغوس</h1>
+            <p class="text-sm text-gray-600">إنشاء حساب طالب جديد</p>
+        </div>
+
+        <!-- فورم التسجيل -->
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الثلاثي</label>
+                <input type="text" id="name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]" placeholder="مثال: مينا فوزي جرجس">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف (للدخول)</label>
+                <input type="text" id="phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
+                <input type="password" id="password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]">
+            </div>
+
+            <button type="submit" class="w-full text-white py-2 rounded-lg btn-primary font-semibold shadow-md mt-4">إنشاء الحساب</button>
+        </form>
+
+        <div id="message" class="mt-4 text-center text-sm font-medium"></div>
+
+        <!-- زر الرجوع لتسجيل الدخول -->
+        <div class="mt-6 text-center text-sm">
+            <p class="text-gray-600">لديك حساب بالفعل؟ <a href="index.html" class="text-primary font-bold hover:underline">تسجيل الدخول</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, password, role: 'student' }) // تسجيل كطالب افتراضياً
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = 'تم إنشاء الحساب بنجاح! جاري تحويلك لتسجيل الدخول...';
+                    
+                    // تحويل لصفحة الدخول بعد ثانيتين
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    messageDiv.style.color = 'red';
+                    messageDiv.textContent = data.message || 'حدث خطأ أثناء التسجيل';
+                }
+            } catch (err) {
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = 'تعذر الاتصال بالسيرفر';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاضرات الكورس - مركز لوغوس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f7f3ec; color: #2b2b2b; }
+        .btn-primary { background-color: #8b0000; transition: background-color 0.3s; }
+        .btn-primary:hover { background-color: #600000; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 0.5rem; margin-top: 1rem; cursor: pointer; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .custom-thumbnail { background: linear-gradient(135deg, #8b0000, #4a0000); }
+        .thumbnail-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .play-button { width: 60px; height: 60px; background-color: rgba(255, 255, 255, 0.15); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s ease-in-out; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .video-container:hover .play-button { transform: translate(-50%, -50%) scale(1.15); background-color: #ff0000; border-color: #ff0000; }
+        .modal-bg { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+
+        /* تصميم الإشعارات العصرية (Toast) */
+        .toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { min-width: 250px; padding: 16px 24px; border-radius: 8px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; align-items: center; gap: 12px; transform: translateX(-150%); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.success { background-color: #10B981; }
+        .toast.error { background-color: #EF4444; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+
+    <header class="bg-white shadow-md border-b-2 border-[#8b0000]">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="text-4xl">⛪</div><div class="text-4xl">📖</div>
+                <h1 class="text-xl font-bold text-[#8b0000] hidden md:block">مركز لوغوس للكورسات المتخصصة</h1>
+            </div>
+            <div class="flex gap-2">
+                <a href="dashboard.html" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-300 transition font-bold">العودة للرئيسية</a>
+                <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition font-bold">تسجيل الخروج</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div id="adminSection" class="hidden bg-white rounded-2xl shadow-md p-6 border-t-4 border-yellow-500 mb-8">
+            <h3 class="text-xl font-semibold mb-4 text-yellow-600">🛠️ إدارة الكورس: إضافة محاضرة جديدة</h3>
+            <form id="addLectureForm" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="w-full md:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">عنوان المحاضرة</label>
+                    <input type="text" id="lectureTitle" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]">
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">رابط اليوتيوب</label>
+                    <input type="url" id="lectureVideo" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8b0000]">
+                </div>
+                <button type="submit" class="w-full md:w-auto text-white px-6 py-2 rounded-lg btn-primary font-semibold shadow-md">إضافة المحاضرة</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-[#8b0000]">
+            <h3 class="text-xl font-semibold mb-4 text-[#8b0000]">محاضرات الكورس</h3>
+            <div id="lecturesList" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <p class="text-gray-500">جاري التحميل...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- تقرير الحضور للأدمن -->
+    <div id="attendanceModal" class="fixed inset-0 modal-bg hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 border-t-4 border-green-600">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-green-700">📊 تقرير حضور المحاضرة</h3>
+                <button onclick="closeAttendanceModal()" class="text-gray-500 hover:text-gray-700 font-bold text-lg">✕</button>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg mb-4 flex justify-between items-center border">
+                <div>
+                    <span class="text-sm text-gray-600 font-bold">كود الحضور للطلاب:</span>
+                    <span id="currentCodeDisplay" class="text-2xl font-bold text-[#8b0000] ml-2 tracking-widest">---</span>
+                </div>
+                <button id="generateCodeBtn" class="bg-[#8b0000] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#600000] transition">توليد كود جديد</button>
+            </div>
+            <div class="overflow-x-auto max-h-80">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead>
+                        <tr class="bg-gray-100 border-b"><th class="text-right py-2 px-3 text-sm text-gray-700">رقم الطالب</th><th class="text-center py-2 px-3 text-sm text-gray-700">الحالة</th><th class="text-center py-2 px-3 text-sm text-gray-700">إجراء يدوي</th></tr>
+                    </thead>
+                    <tbody id="attendanceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل المحاضرة -->
+    <div id="editModal" class="fixed inset-0 modal-bg hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 border-t-4 border-blue-500">
+            <h3 class="text-xl font-bold mb-4 text-blue-600">✏️ تعديل المحاضرة</h3>
+            <form id="editLectureForm" class="space-y-4">
+                <input type="hidden" id="editLectureId">
+                <div><label class="block text-sm font-medium">العنوان</label><input type="text" id="editLectureTitle" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div><label class="block text-sm font-medium">الرابط</label><input type="url" id="editLectureVideo" required class="w-full px-4 py-2 border rounded-lg"></div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-300 px-4 py-2 rounded-lg font-bold">إلغاء</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- حاوية الإشعارات -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        const userId = localStorage.getItem('userId');
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+        let currentLectureIdForReport = null;
+
+        if (!token || !courseId) window.location.href = 'dashboard.html';
+        if (role === 'admin') document.getElementById('adminSection').classList.remove('hidden');
+
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        // دالة عرض الإشعارات العصرية
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : '⚠️';
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+
+        function getYouTubeVideoId(url) {
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function playVideo(element, videoId) {
+            element.onclick = null; element.className = "video-container"; 
+            element.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1" frameborder="0" allowfullscreen></iframe>`;
+        }
+
+        // تسجيل الحضور للطالب بالكود
+        async function recordAttendance(courseId, lectureId) {
+            const code = prompt('الرجاء إدخال كود الحضور المكتوب على السبورة (4 أرقام):');
+            if (!code) return; 
+
+            try {
+                const response = await fetch('http://localhost:5000/api/attendance/record', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ courseId, lectureId, code })
+                });
+                const data = await response.json();
+                if(response.ok) { showToast(data.message, 'success'); } 
+                else { showToast(data.message, 'error'); }
+            } catch (err) { showToast('تعذر الاتصال بالسيرفر', 'error'); }
+        }
+
+        async function openAttendanceModal(lectureId) {
+            currentLectureIdForReport = lectureId;
+            document.getElementById('attendanceModal').classList.remove('hidden');
+            await loadReportData();
+        }
+
+        function closeAttendanceModal() {
+            document.getElementById('attendanceModal').classList.add('hidden');
+            currentLectureIdForReport = null;
+        }
+
+        async function loadReportData() {
+            const tableBody = document.getElementById('attendanceTableBody');
+            tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4">جاري جلب البيانات...</td></tr>';
+            try {
+                const response = await fetch(`http://localhost:5000/api/attendance/report/${courseId}/${currentLectureIdForReport}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                document.getElementById('currentCodeDisplay').textContent = data.attendanceCode || 'لم يتم توليده بعد';
+                tableBody.innerHTML = '';
+                if (data.report.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4">لا يوجد طلاب مشتركين</td></tr>'; return; }
+                data.report.forEach(item => {
+                    const isPresent = item.status === 'present';
+                    const statusBadge = isPresent ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">🟢 حاضر</span>' : '<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">🔴 غائب</span>';
+                    const actionButton = isPresent 
+                        ? `<button onclick="toggleManualAttendance('${item.studentId}', 'absent')" class="bg-red-50 text-red-600 px-3 py-1 rounded border border-red-200 hover:bg-red-100 text-xs font-bold">إلغاء الحضور</button>`
+                        : `<button onclick="toggleManualAttendance('${item.studentId}', 'present')" class="bg-green-50 text-green-600 px-3 py-1 rounded border border-green-200 hover:bg-green-100 text-xs font-bold">تسجيل حضور</button>`;
+                    tableBody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="py-2 px-3 text-gray-800 font-bold" dir="ltr">${item.phone}</td><td class="py-2 px-3 text-center">${statusBadge}</td><td class="py-2 px-3 text-center">${actionButton}</td></tr>`;
+                });
+            } catch (err) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-red-500">تعذر جلب التقرير</td></tr>'; }
+        }
+
+        async function toggleManualAttendance(studentId, action) {
+            try {
+                const response = await fetch('http://localhost:5000/api/attendance/manual-record', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ studentId, courseId, lectureId: currentLectureIdForReport, action })
+                });
+                if (response.ok) {
+                    showToast('تم التحديث يدوياً بنجاح', 'success');
+                    await loadReportData(); 
+                } else { showToast('حدث خطأ أثناء التحديث', 'error'); }
+            } catch (err) { showToast('تعذر الاتصال بالسيرفر', 'error'); }
+        }
+
+        document.getElementById('generateCodeBtn').addEventListener('click', async () => {
+            if (!currentLectureIdForReport) return;
+            try {
+                const response = await fetch(`http://localhost:5000/api/attendance/generate-code/${currentLectureIdForReport}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                if (response.ok) { showToast('تم توليد كود جديد!', 'success'); await loadReportData(); }
+            } catch (err) { showToast('تعذر توليد الكود', 'error'); }
+        });
+
+        async function fetchLectures() {
+            try {
+                const response = await fetch(`http://localhost:5000/api/lectures/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                const lectures = await response.json();
+                const container = document.getElementById('lecturesList');
+                container.innerHTML = '';
+                
+                lectures.forEach((lecture, index) => {
+                    const videoId = getYouTubeVideoId(lecture.videoUrl);
+                    const videoElement = videoId ? `<div class="video-container custom-thumbnail" onclick="playVideo(this, '${videoId}')"><div class="thumbnail-overlay"><div class="play-button">▶</div></div></div>` : `<a href="${lecture.videoUrl}" class="text-red-500 block mt-2">رابط خارجي</a>`;
+
+                    let attendanceButton = role === 'student' ? `<button onclick="recordAttendance('${courseId}', '${lecture._id}')" class="mt-4 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700">✅ إدخال كود الحضور</button>` : '';
+                    let adminControls = role === 'admin' ? `
+                        <div class="mt-4 flex flex-col gap-2 pt-3 border-t">
+                            <button onclick="openAttendanceModal('${lecture._id}')" class="bg-green-100 text-green-800 py-2 rounded-lg text-sm font-bold hover:bg-green-200">📊 تقرير الحضور والتحكم</button>
+                            <div class="flex gap-2">
+                                <button onclick="openEditModal('${lecture._id}', '${lecture.title}', '${lecture.videoUrl}')" class="flex-1 bg-blue-100 text-blue-700 py-1.5 rounded-lg text-sm font-bold">✏️ تعديل</button>
+                                <button onclick="deleteLecture('${lecture._id}')" class="flex-1 bg-red-100 text-red-700 py-1.5 rounded-lg text-sm font-bold">🗑️ حذف</button>
+                            </div>
+                        </div>` : '';
+
+                    container.innerHTML += `<div class="border-2 border-gray-100 rounded-xl p-5 shadow-sm bg-white"><div class="flex items-center gap-4 mb-3"><div class="bg-[#8b0000] text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">${index + 1}</div><h4 class="font-bold">${lecture.title}</h4></div>${videoElement} ${attendanceButton} ${adminControls}</div>`;
+                });
+            } catch (err) { document.getElementById('lecturesList').innerHTML = '<p class="text-red-500">خطأ في التحميل</p>'; }
+        }
+
+        document.getElementById('addLectureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('lectureTitle').value; const videoUrl = document.getElementById('lectureVideo').value;
+            try {
+                await fetch('http://localhost:5000/api/lectures', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl, courseId }) });
+                document.getElementById('addLectureForm').reset(); fetchLectures();
+                showToast('تم إضافة المحاضرة!', 'success');
+            } catch (err) { showToast('تعذر الإضافة', 'error'); }
+        });
+        
+        function openEditModal(id, title, url) { document.getElementById('editLectureId').value = id; document.getElementById('editLectureTitle').value = title; document.getElementById('editLectureVideo').value = url; document.getElementById('editModal').classList.remove('hidden'); }
+        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+        
+        document.getElementById('editLectureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editLectureId').value; const title = document.getElementById('editLectureTitle').value; const videoUrl = document.getElementById('editLectureVideo').value;
+            try { await fetch(`http://localhost:5000/api/lectures/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl }) }); closeEditModal(); fetchLectures(); showToast('تم التعديل!', 'success'); } catch (err) { showToast('خطأ في التعديل', 'error'); }
+        });
+
+        async function deleteLecture(id) {
+            if (confirm('تأكيد الحذف؟')) { 
+                try { await fetch(`http://localhost:5000/api/lectures/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }}); fetchLectures(); showToast('تم الحذف!', 'success'); }
+                catch(err) { showToast('خطأ بالحذف', 'error'); }
+            }
+        }
+
+        fetchLectures();
+    </script>
+</body>
+</html>
