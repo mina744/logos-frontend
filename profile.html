@@ -18,14 +18,22 @@
 <body class="min-h-screen bg-[#f7f3ec]">
 
     <!-- شريط التنقل العلوي -->
-    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center border-b-4 border-[#8b0000]">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">⛪</span><span class="text-2xl">📖</span>
-            <h1 class="text-xl font-bold text-[#8b0000]">مركز لوغوس للكورسات المتخصصة</h1>
+    <!-- شريط التنقل العلوي المتجاوب -->
+    <nav class="bg-white shadow-md px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 border-b-4 border-[#8b0000]">
+        <!-- اللوجو والعنوان -->
+        <div class="flex items-center gap-2 text-center">
+            <span class="text-2xl hidden sm:inline">⛪</span>
+            <span class="text-2xl hidden sm:inline">📖</span>
+            <h1 class="text-lg md:text-xl font-bold text-[#8b0000]">مركز لوغوس للكورسات المتخصصة</h1>
         </div>
-        <div class="flex items-center gap-4">
-            <a href="dashboard.html" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300 transition">العودة للرئيسية</a>
-            <button onclick="logout()" class="bg-[#8b0000] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#600000] transition">تسجيل الخروج</button>
+        <!-- الأزرار -->
+        <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+            <a href="dashboard.html" class="flex-1 md:flex-none bg-gray-200 text-gray-700 px-3 md:px-4 py-2 rounded-lg font-bold hover:bg-gray-300 transition text-sm text-center">
+                العودة للرئيسية
+            </a>
+            <button onclick="logout()" class="flex-1 md:flex-none bg-[#8b0000] text-white px-3 md:px-4 py-2 rounded-lg font-bold hover:bg-[#600000] transition text-sm">
+                تسجيل الخروج
+            </button>
         </div>
     </nav>
 
