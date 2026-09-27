@@ -121,43 +121,49 @@
 
         // جلب الكورسات
         async function fetchCourses() {
-            try {
-                const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/courses', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-                document.getElementById('loadingMessagestyle' || 'loadingMessage').style.display = 'none';
-
-                if (response.ok) {
-                    const container = document.getElementById('coursesContainer');
-                    if (data.length === 0) {
-                        container.innerHTML = '<p class="text-gray-500 col-span-full text-center">لا توجد كورسات متاحة حالياً.</p>';
-                        return;
-                    }
-                    
-                    container.innerHTML = data.map(course => `
-                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-[#8b0000] mb-2">${course.title}</h3>
-                                <p class="text-gray-600 text-sm mb-4">${course.description || 'لايوجد وصف متاح'}</p>
-                            </div>
-                            <a href="course.html?id=${course._id}" class="w-full text-center bg-[#8b0000] text-white py-2 rounded-lg font-bold hover:bg-[#600000] transition">عرض الكورس</a>
-                        </div>
-                    `).join('');
-                } else {
-                    showToast(data.message || 'فشل في جلب الكورسات', 'error');
-                }
-            } catch (err) {
-                const loader = document.getElementById('loadingMessage');
-                if(loader) loader.style.display = 'none';
-                showToast('تعذر الاتصال بالسيرفر وجلب الكورسات', 'error');
+    try {
+        console.log("جاري إرسال الطلب إلى السيرفر...");
+        const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/courses', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
+        });
+
+        console.log("حالة الاستجابة من السيرفر:", response.status);
+        const data = await response.json();
+        
+        const loader = document.getElementById('loadingMessage');
+        if(loader) loader.style.display = 'none';
+
+        if (response.ok) {
+            const container = document.getElementById('coursesContainer');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 col-span-full text-center">لا توجد كورسات متاحة حالياً.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(course => `
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-[#8b0000] mb-2">${course.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${course.description || 'لايوجد وصف متاح'}</p>
+                    </div>
+                    <a href="course.html?id=${course._id}" class="w-full text-center bg-[#8b0000] text-white py-2 rounded-lg font-bold hover:bg-[#600000] transition">عرض الكورس</a>
+                </div>
+            `).join('');
+        } else {
+            console.error('خطأ من السيرفر:', data);
+            showToast(data.message || 'فشل في جلب الكورسات', 'error');
         }
+    } catch (err) {
+        console.error('خطأ في الاتصال:', err);
+        const loader = document.getElementById('loadingMessage');
+        if(loader) loader.style.display = 'none';
+        showToast('تعذر الاتصال بالسيرفر وجلب الكورسات', 'error');
+    }
+}
 
         // إضافة كورس جديد (خاص بالآدمن)
         document.getElementById('addCourseForm').addEventListener('submit', async (e) => {
