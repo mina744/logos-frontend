@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <!-- قسم إحصائيات الحضور والاشتراكات (للطلاب) -->
+        <!-- قسم إحصائيات الحضور والاشتراكات -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- الكورسات المشترك بها -->
@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <div id="attendanceDetails" class="text-xs text-gray-500 text-center">
-                    نسبة التزام ممتازة في الحضور!
+                    متابعة دورية لحضور المحاضرات والالتزام بها.
                 </div>
             </div>
 
@@ -149,7 +149,7 @@
             window.location.href = 'index.html';
         }
 
-        // جلب بيانات البروفايل والكورسات والحضور
+        // جلب بيانات البروفايل والكورسات وحضور الطالب
         async function fetchUserData() {
             try {
                 const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/auth/profile', {
@@ -163,7 +163,6 @@
                     document.getElementById('nameInput').value = data.name || '';
                     document.getElementById('phoneInput').value = data.phone || '';
 
-                    // محاكاة جلب كورسات الطالب واحصائيات الحضور
                     loadStudentStatsAndCourses();
                 } else {
                     showToast('فشل جلب بيانات الملف الشخصي', 'error');
@@ -175,7 +174,7 @@
 
         async function loadStudentStatsAndCourses() {
             try {
-                // جلب الكورسات المتاحة كعرض افتراضي للاشتراكات
+                // 1. جلب الكورسات
                 const coursesRes = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/courses', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -190,15 +189,21 @@
                         </div>
                     `).join('');
                 } else {
-                    container.innerHTML = '<p class="text-gray-500 text-sm">لا توجد كورسات مشترك بها حالياً.</p>';
+                    container.innerHTML = '<p class="text-gray-500 text-sm">لا توجد كورسات متاحة حالياً.</p>';
                 }
 
-                // تعيين إحصائيات افتراضية دقيقة للحضور
-                document.getElementById('presentCount').textContent = '4';
-                document.getElementById('absentCount').textContent = '1';
+                // 2. جلب إحصائيات الحضور الحقيقية من السيرفر
+                const statsRes = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/student-stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (statsRes.ok) {
+                    const stats = await statsRes.json();
+                    document.getElementById('presentCount').textContent = stats.presentCount;
+                    document.getElementById('absentCount').textContent = stats.absentCount;
+                }
 
             } catch (e) {
-                document.getElementById('enrolledCoursesList').innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب الاشتراكات</p>';
+                console.error('خطأ في جلب بيانات الصفحة', e);
             }
         }
 
