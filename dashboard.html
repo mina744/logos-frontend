@@ -142,20 +142,52 @@
         function closeAddCourseModal() { document.getElementById('addCourseModal').classList.add('hidden'); }
 
         // جلب الإحصائيات (للأدمن)
-        async function fetchStats() {
-            try {
-                // جلب إحصائيات عامة أو حسابها من الكورسات
-                const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/courses', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const courses = await response.json();
-                if (response.ok) {
-                    document.getElementById('statCoursesCount').textContent = courses.length;
+        // جلب وتحديث الإحصائيات بدقة (للأدمن)
+async function fetchStats() {
+    try {
+        // 1. جلب الكورسات لحساب عددهم الفعلي
+        const coursesRes = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/courses', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const courses = await coursesRes.json();
+        
+        if (coursesRes.ok && Array.isArray(courses)) {
+            document.getElementById('statCoursesCount').textContent = courses.length;
+            
+            // 2. جلب عدد المحاضرات لكل كورس وحساب المجموع الكلي
+            let totalLectures = 0;
+            for (let course of courses) {
+                try {
+                    const lecRes = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${course._id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const lectures = await lecRes.json();
+                    if (lecRes.ok && Array.isArray(lectures)) {
+                        totalLectures += lectures.length;
+                    }
+                } catch (e) {
+                    // تجاهل الأخطاء الفردية للمحاضرات لضمان استمرار الحساب
                 }
-            } catch (err) {
-                console.error('خطأ في جلب الإحصائيات');
             }
+            document.getElementById('statLecturesCount').textContent = totalLectures;
         }
+
+        // 3. جلب عدد الطلاب الكلي من قاعدة البيانات عبر مسار الـ auth أو الطلاب
+        const usersRes = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/auth/users', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (usersRes.ok) {
+            const users = await usersRes.json();
+            const students = users.filter(u => u.role === 'student');
+            document.getElementById('statStudentsCount').textContent = students.length;
+        } else {
+            // كقيمة بديلة لو المسار غير متاح
+            document.getElementById('statStudentsCount').textContent = '-';
+        }
+    } catch (err) {
+        console.error('خطأ في جلب الإحصائيات الدقيقة', err);
+    }
+}
 
         // جلب الكورسات
         async function fetchCourses() {
