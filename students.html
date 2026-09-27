@@ -67,7 +67,7 @@
 
         async function loadCoursesForSelect() {
             try {
-                const res = await fetch('http://localhost:5000/api/courses', { headers: { 'Authorization': `Bearer ${token}` } });
+                const res = await fetch('https://logos-backend-production-e529.up.railway.app/api/courses', { headers: { 'Authorization': `Bearer ${token}` } });
                 const courses = await res.json();
                 const select = document.getElementById('courseSelect');
                 select.innerHTML = '<option value="">-- اختر الكورس --</option>';
@@ -79,7 +79,7 @@
             const tableBody = document.getElementById('studentsTableBody');
             const studentSelect = document.getElementById('studentSelect');
             try {
-                const res = await fetch('http://localhost:5000/api/users/students', { headers: { 'Authorization': `Bearer ${token}` } });
+                const res = await fetch('https://logos-backend-production-e529.up.railway.app/api/users/students', { headers: { 'Authorization': `Bearer ${token}` } });
                 const students = await res.json();
                 tableBody.innerHTML = ''; studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
                 if (students.length === 0) { tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">لا يوجد طلاب مسجلين.</td></tr>'; return; }
@@ -102,7 +102,7 @@
             e.preventDefault();
             const phone = document.getElementById('studentSelect').value; const courseId = document.getElementById('courseSelect').value;
             try {
-                const res = await fetch('http://localhost:5000/api/users/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ phone, courseId }) });
+                const res = await fetch('https://logos-backend-production-e529.up.railway.app/api/users/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ phone, courseId }) });
                 const data = await res.json();
                 if (res.ok) { showToast('تم تفعيل الكورس للطالب بنجاح!', 'success'); loadStudents(); } else { showToast(data.message, 'error'); }
             } catch (err) { showToast('تعذر الاتصال', 'error'); }
@@ -112,7 +112,7 @@
         async function resetPassword(studentId) {
             if(confirm('سيتم تغيير كلمة المرور لتكون نفس رقم هاتف الطالب. هل أنت متأكد؟')) {
                 try {
-                    const res = await fetch(`http://localhost:5000/api/users/reset-password/${studentId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
+                    const res = await fetch(`https://logos-backend-production-e529.up.railway.app/api/users/reset-password/${studentId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await res.json();
                     if(res.ok) showToast(data.message, 'success'); else showToast(data.message, 'error');
                 } catch(err) { showToast('خطأ بالاتصال', 'error'); }
@@ -123,7 +123,7 @@
         async function deleteStudent(studentId) {
             if(confirm('تحذير: سيتم حذف الطالب وجميع غياباته نهائياً! هل أنت متأكد؟')) {
                 try {
-                    const res = await fetch(`http://localhost:5000/api/users/${studentId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    const res = await fetch(`https://logos-backend-production-e529.up.railway.app/api/users/${studentId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await res.json();
                     if(res.ok) { showToast(data.message, 'success'); loadStudents(); } else { showToast(data.message, 'error'); }
                 } catch(err) { showToast('خطأ بالاتصال', 'error'); }

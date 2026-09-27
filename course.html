@@ -150,7 +150,7 @@
             if (!code) return; 
 
             try {
-                const response = await fetch('http://localhost:5000/api/attendance/record', {
+                const response = await fetch('https://logos-backend-production-e529.up.railway.app/api/attendance/record', {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ courseId, lectureId, code })
                 });
@@ -175,7 +175,7 @@
             const tableBody = document.getElementById('attendanceTableBody');
             tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4">جاري جلب البيانات...</td></tr>';
             try {
-                const response = await fetch(`http://localhost:5000/api/attendance/report/${courseId}/${currentLectureIdForReport}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                const response = await fetch(`https://logos-backend-production-e529.up.railway.app/api/attendance/report/${courseId}/${currentLectureIdForReport}`, { headers: { 'Authorization': `Bearer ${token}` }});
                 if (!response.ok) throw new Error();
                 const data = await response.json();
                 document.getElementById('currentCodeDisplay').textContent = data.attendanceCode || 'لم يتم توليده بعد';
@@ -194,7 +194,7 @@
 
         async function toggleManualAttendance(studentId, action) {
             try {
-                const response = await fetch('http://localhost:5000/api/attendance/manual-record', {
+                const response = await fetch('https://logos-backend-production-e529.up.railway.app/api/attendance/manual-record', {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ studentId, courseId, lectureId: currentLectureIdForReport, action })
                 });
@@ -208,14 +208,14 @@
         document.getElementById('generateCodeBtn').addEventListener('click', async () => {
             if (!currentLectureIdForReport) return;
             try {
-                const response = await fetch(`http://localhost:5000/api/attendance/generate-code/${currentLectureIdForReport}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                const response = await fetch(`https://logos-backend-production-e529.up.railway.app/api/attendance/generate-code/${currentLectureIdForReport}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
                 if (response.ok) { showToast('تم توليد كود جديد!', 'success'); await loadReportData(); }
             } catch (err) { showToast('تعذر توليد الكود', 'error'); }
         });
 
         async function fetchLectures() {
             try {
-                const response = await fetch(`http://localhost:5000/api/lectures/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                const response = await fetch(`https://logos-backend-production-e529.up.railway.app/api/lectures/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` }});
                 const lectures = await response.json();
                 const container = document.getElementById('lecturesList');
                 container.innerHTML = '';
@@ -243,7 +243,7 @@
             e.preventDefault();
             const title = document.getElementById('lectureTitle').value; const videoUrl = document.getElementById('lectureVideo').value;
             try {
-                await fetch('http://localhost:5000/api/lectures', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl, courseId }) });
+                await fetch('https://logos-backend-production-e529.up.railway.app/api/lectures', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl, courseId }) });
                 document.getElementById('addLectureForm').reset(); fetchLectures();
                 showToast('تم إضافة المحاضرة!', 'success');
             } catch (err) { showToast('تعذر الإضافة', 'error'); }
@@ -255,12 +255,12 @@
         document.getElementById('editLectureForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('editLectureId').value; const title = document.getElementById('editLectureTitle').value; const videoUrl = document.getElementById('editLectureVideo').value;
-            try { await fetch(`http://localhost:5000/api/lectures/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl }) }); closeEditModal(); fetchLectures(); showToast('تم التعديل!', 'success'); } catch (err) { showToast('خطأ في التعديل', 'error'); }
+            try { await fetch(`https://logos-backend-production-e529.up.railway.app/api/lectures/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ title, videoUrl }) }); closeEditModal(); fetchLectures(); showToast('تم التعديل!', 'success'); } catch (err) { showToast('خطأ في التعديل', 'error'); }
         });
 
         async function deleteLecture(id) {
             if (confirm('تأكيد الحذف؟')) { 
-                try { await fetch(`http://localhost:5000/api/lectures/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }}); fetchLectures(); showToast('تم الحذف!', 'success'); }
+                try { await fetch(`https://logos-backend-production-e529.up.railway.app/api/lectures/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }}); fetchLectures(); showToast('تم الحذف!', 'success'); }
                 catch(err) { showToast('خطأ بالحذف', 'error'); }
             }
         }
