@@ -42,7 +42,6 @@
                 <p class="text-xs text-gray-500">أضف محاضرات وحمل تقارير الحضور المجمعة.</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <!-- زرار طباعة وتحميل التقرير -->
                 <button onclick="downloadPDFReport()" class="bg-red-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-800 text-sm shadow-md">📄 طباعة / تحميل تقرير الكورس PDF</button>
                 <button onclick="document.getElementById('enrollStudentModal').classList.remove('hidden')" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 text-sm shadow-md">🎓 تسجيل طالب</button>
                 <button onclick="openAddLectureModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 text-sm shadow-md">➕ محاضرة جديدة</button>
@@ -206,7 +205,7 @@
             } catch (err) { showToast('خطأ في الاتصال بالسيرفر', 'error'); }
         }
 
-        // دالة إنشاء وتحميل التقرير باللغة العربية (Native Browser Print)
+        // --- دالة إنشاء وتحميل التقرير المعدلة (لتدعم الآيفون بنسبة 100%) ---
         async function downloadPDFReport() {
             try {
                 showToast('جاري تجهيز التقرير، يرجى الانتظار...', 'success');
@@ -220,68 +219,65 @@
 
                 const courseTitle = document.getElementById('courseTitle').textContent;
 
-                // فتح نافذة طباعة جديدة
-                const printWindow = window.open('', '_blank');
-                
-                // كتابة محتوى الـ HTML المنسق لدعم العربي بشكل مثالي 100%
-                printWindow.document.write(`
-                    <html lang="ar" dir="rtl">
-                    <head>
-                        <title>تقرير حضور - ${courseTitle}</title>
-                        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-                        <style>
-                            body { font-family: 'Tajawal', Arial, sans-serif; padding: 20px; direction: rtl; text-align: right; color: #000; }
-                            h2 { text-align: center; color: #8b0000; margin-bottom: 5px; }
-                            h3 { text-align: center; margin-bottom: 20px; font-weight: bold; }
-                            .total-lectures { text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 16px; }
-                            table { width: 100%; border-collapse: collapse; text-align: right; margin-top: 20px; }
-                            th, td { padding: 12px; border: 1px solid #000; }
-                            th { background-color: #e5e7eb; font-weight: bold; }
-                            .student-name { font-weight: bold; font-size: 15px; }
-                            .attended-lectures { font-size: 13px; color: #333; }
-                            .total-attended { text-align: center; font-weight: bold; font-size: 16px; }
-                            /* تفعيل الألوان عند الطباعة */
-                            @media print {
-                                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                                th { background-color: #e5e7eb !important; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h2>مركز لوغوس للكورسات المتخصصة</h2>
-                        <h3>تقرير حضور كورس: ${courseTitle}</h3>
-                        <div class="total-lectures">إجمالي المحاضرات حتى الآن: ${data.totalLectures}</div>
-                        
-                        <table>
-                            <thead>
+                // 1. إضافة الستايل الخاص بالطباعة لإخفاء الموقع وإظهار التقرير
+                if (!document.getElementById('printStyle')) {
+                    const style = document.createElement('style');
+                    style.id = 'printStyle';
+                    style.innerHTML = `
+                        @media screen {
+                            #printArea { display: none !important; }
+                        }
+                        @media print {
+                            body > *:not(#printArea) { display: none !important; }
+                            #printArea { display: block !important; width: 100%; direction: rtl; text-align: right; background-color: white; color: black; font-family: 'Tajawal', sans-serif; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th, td { border: 1px solid #000; padding: 10px; }
+                            th { background-color: #e5e7eb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            @page { margin: 15mm; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                // 2. إنشاء مكان التقرير في نفس الصفحة
+                let printArea = document.getElementById('printArea');
+                if (!printArea) {
+                    printArea = document.createElement('div');
+                    printArea.id = 'printArea';
+                    document.body.appendChild(printArea);
+                }
+
+                // 3. وضع محتوى التقرير
+                printArea.innerHTML = `
+                    <h2 style="text-align: center; color: #8b0000; margin-bottom: 5px;">مركز لوغوس للكورسات المتخصصة</h2>
+                    <h3 style="text-align: center; margin-bottom: 20px;">تقرير حضور كورس: ${courseTitle}</h3>
+                    <div style="text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 16px;">إجمالي المحاضرات حتى الآن: ${data.totalLectures}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">اسم الطالب</th>
+                                <th style="width: 20%;">رقم الهاتف</th>
+                                <th style="width: 40%;">المحاضرات التي تم حضورها</th>
+                                <th style="width: 15%; text-align: center;">إجمالي الحضور</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.report.map(student => `
                                 <tr>
-                                    <th style="width: 25%;">اسم الطالب</th>
-                                    <th style="width: 20%;">رقم الهاتف</th>
-                                    <th style="width: 40%;">المحاضرات التي تم حضورها</th>
-                                    <th style="width: 15%; text-align: center;">إجمالي الحضور</th>
+                                    <td style="font-weight: bold;">${student.name}</td>
+                                    <td dir="ltr">${student.phone}</td>
+                                    <td style="font-size: 13px;">${student.attendedLectures}</td>
+                                    <td style="text-align: center; font-weight: bold; font-size: 16px;">${student.totalAttended}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                ${data.report.map(student => `
-                                    <tr>
-                                        <td class="student-name">${student.name}</td>
-                                        <td dir="ltr">${student.phone}</td>
-                                        <td class="attended-lectures">${student.attendedLectures}</td>
-                                        <td class="total-attended">${student.totalAttended}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </body>
-                    </html>
-                `);
-                
-                printWindow.document.close();
-                
-                // انتظار نص ثانية عشان الخط يحمل وبعدها نفتح الطباعة
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                // 4. استدعاء الطباعة مباشرة (الآيفون هيفتح شاشة حفظ PDF)
                 setTimeout(() => {
-                    printWindow.print();
-                }, 500);
+                    window.print();
+                }, 300);
 
             } catch (err) {
                 showToast('تعذر تحميل التقرير، تأكد من اتصالك', 'error');
