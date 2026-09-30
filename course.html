@@ -17,135 +17,104 @@
 </head>
 <body class="min-h-screen bg-[#f7f3ec]">
 
-    <!-- شريط التنقل لصفحة الكورس -->
-    <nav class="bg-white shadow-md px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 border-b-4 border-[#8b0000]">
-        <div class="flex items-center gap-2 md:gap-3 text-center">
-            <img src="center-logo.jpg" alt="شعار المركز" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply">
-            <h1 class="text-lg md:text-xl font-bold text-[#8b0000]">مركز لوغوس للكورسات المتخصصة</h1>
+    <nav class="bg-white shadow-md px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b-4 border-[#8b0000]">
+        <div class="flex items-center gap-3">
+            <img src="center-logo.jpg" alt="شعار المركز" class="h-10 w-auto mix-blend-multiply">
+            <h1 class="text-xl font-bold text-[#8b0000]">مركز لوغوس للكورسات المتخصصة</h1>
         </div>
-        <div class="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto justify-center">
-            <a href="dashboard.html" class="flex-grow md:flex-none bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold hover:bg-gray-300 transition text-xs md:text-sm text-center">
-                الرئيسية
-            </a>
-            <a href="profile.html" class="flex-grow md:flex-none bg-blue-100 text-blue-800 px-3 py-2 rounded-lg font-bold hover:bg-blue-200 transition text-xs md:text-sm text-center">
-                👤 الملف الشخصي
-            </a>
-            <button onclick="logout()" class="flex-grow md:flex-none bg-[#8b0000] text-white px-3 py-2 rounded-lg font-bold hover:bg-[#600000] transition text-xs md:text-sm text-center">
-                تسجيل الخروج
-            </button>
+        <div class="flex flex-wrap gap-2 justify-center">
+            <a href="dashboard.html" class="bg-gray-200 px-3 py-2 rounded-lg font-bold hover:bg-gray-300 text-sm">الرئيسية</a>
+            <a href="profile.html" class="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg font-bold hover:bg-blue-200 text-sm">👤 الملف الشخصي</a>
+            <button onclick="logout()" class="bg-[#8b0000] text-white px-3 py-2 rounded-lg font-bold hover:bg-[#600000] text-sm">خروج</button>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto p-6 mt-4">
-        
-        <div id="courseHeader" class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6">
-            <h2 id="courseTitle" class="text-2xl font-bold text-[#8b0000] mb-2">جاري تحميل الكورس...</h2>
+        <div class="bg-white p-6 rounded-2xl shadow-md border mb-6">
+            <h2 id="courseTitle" class="text-2xl font-bold text-[#8b0000] mb-2">جاري التحميل...</h2>
             <p id="courseDesc" class="text-gray-600 text-sm">...</p>
         </div>
 
-        <!-- قسم الحضور المستقل للكورس (يظهر قبل نزول المحاضرات) -->
-        <div class="bg-white p-5 rounded-2xl shadow-md border-2 border-purple-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h3 class="text-lg font-bold text-purple-900 mb-1">📌 تسجيل حضور حصة اليوم</h3>
-                <p class="text-sm text-gray-600">سجل حضورك بالكود الذي يمليه الخادم في الكنيسة.</p>
-            </div>
-            
-            <div id="attendanceActionContainer" class="w-full md:w-auto flex items-center gap-2">
-                <!-- سيتم ملء هذا الجزء تلقائياً حسب دور المستخدم (أدمن أو طالب) -->
-            </div>
-        </div>
-
-        <div id="adminLectureControls" class="bg-white p-4 rounded-xl shadow-md border border-blue-200 mb-6 hidden flex flex-wrap gap-4 justify-between items-center">
+        <div id="adminLectureControls" class="bg-white p-4 rounded-xl shadow border border-blue-200 mb-6 hidden flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h3 class="font-bold text-blue-900">إدارة المحاضرات</h3>
-                <p class="text-sm text-gray-500">إضافة محاضرات أو تسجيل طلاب في هذا الكورس.</p>
+                <p class="text-xs text-gray-500">أضف محاضرة (ممكن بدون فيديو) لتسجيل الحضور في الكنيسة، وعدلها لاحقاً لإضافة الفيديو.</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="openEnrollModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition shadow-md text-sm">
-                    🎓 إضافة طالب للكورس
-                </button>
-                <button onclick="openAddLectureModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md text-sm">
-                    ➕ إضافة محاضرة
-                </button>
+                <button onclick="document.getElementById('enrollStudentModal').classList.remove('hidden')" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 text-sm shadow-md">🎓 تسجيل طالب</button>
+                <button onclick="openAddLectureModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 text-sm shadow-md">➕ محاضرة جديدة</button>
             </div>
         </div>
 
-        <h3 class="text-xl font-bold text-gray-800 mb-4">محاضرات الكورس</h3>
-        <div id="lecturesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <p class="text-gray-500">جاري تحميل المحاضرات...</p>
-        </div>
+        <h3 class="text-xl font-bold mb-4">محاضرات الكورس</h3>
+        <div id="lecturesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
     </main>
 
-    <!-- Modal إضافة محاضرة -->
-    <div id="addLectureModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <!-- Modal إضافة / تعديل محاضرة -->
+    <div id="lectureModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <h3 class="text-xl font-bold text-[#8b0000] mb-4">إضافة محاضرة جديدة</h3>
-            <form id="addLectureForm" class="space-y-4">
+            <h3 id="lectureModalTitle" class="text-xl font-bold text-[#8b0000] mb-4">إضافة محاضرة</h3>
+            <form id="lectureForm" class="space-y-4">
+                <input type="hidden" id="editLectureId">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">عنوان المحاضرة</label>
-                    <input type="text" id="lectureTitle" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#8b0000] outline-none">
+                    <label class="block text-sm font-bold mb-1">عنوان المحاضرة (مطلوب)</label>
+                    <input type="text" id="lectureTitleInput" required class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-[#8b0000]">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">رابط يوتيوب</label>
-                    <input type="text" id="lectureVideoUrl" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#8b0000] outline-none" dir="ltr">
+                    <label class="block text-sm font-bold mb-1">رابط يوتيوب (اختياري)</label>
+                    <input type="text" id="lectureVideoInput" placeholder="يمكنك إضافته لاحقاً بعد المونتاج" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-[#8b0000]" dir="ltr">
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeAddLectureModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">إلغاء</button>
-                    <button type="submit" class="bg-[#8b0000] text-white px-5 py-2 rounded-lg font-bold">حفظ ونشر</button>
+                    <button type="button" onclick="closeLectureModal()" class="bg-gray-300 px-4 py-2 rounded-lg font-bold">إلغاء</button>
+                    <button type="submit" class="bg-[#8b0000] text-white px-5 py-2 rounded-lg font-bold">حفظ</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal إضافة طالب للكورس -->
-    <div id="enrollStudentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-bold text-green-700 mb-4">🎓 تسجيل طالب في الكورس</h3>
-            <form id="enrollStudentForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">رقم هاتف الطالب</label>
-                    <input type="text" id="enrollPhone" required placeholder="01xxxxxxxxx" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-600 outline-none" dir="ltr">
-                </div>
-                <div class="flex justify-end gap-2 mt-6">
-                    <button type="button" onclick="closeEnrollModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">إلغاء</button>
-                    <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-green-700">اشتراك</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal تقرير الحضور (للأدمن) -->
+    <!-- Modal تقرير الحضور -->
     <div id="attendanceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-2xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
-                <h3 class="text-xl font-bold text-[#8b0000]">📊 تقرير حضور الكورس</h3>
-                <button onclick="closeAttendanceModal()" class="text-gray-500 hover:text-gray-700 font-bold text-xl">✕</button>
+                <h3 class="text-xl font-bold text-[#8b0000]">📊 تقرير حضور المحاضرة</h3>
+                <button onclick="document.getElementById('attendanceModal').classList.add('hidden')" class="text-gray-500 hover:text-red-600 font-bold text-xl">✕</button>
             </div>
             
             <div class="bg-gray-50 p-4 rounded-xl border mb-4 flex justify-between items-center">
                 <div>
-                    <p class="text-xs text-gray-500 font-bold mb-1">كود الحضور الحالي:</p>
-                    <div id="attendanceCodeDisplay" class="text-lg font-bold text-red-700 tracking-wider">لم يتم توليده بعد</div>
+                    <p class="text-xs text-gray-500 font-bold mb-1">كود الحضور للطلاب:</p>
+                    <div id="attendanceCodeDisplay" class="text-lg font-bold text-red-700">لم يتم توليده</div>
                 </div>
-                <button onclick="generateAttendanceCode()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition text-sm shadow-md">
-                    🔄 توليد كود جديد
-                </button>
+                <button onclick="generateAttendanceCode()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow">🔄 توليد كود جديد</button>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-right border-collapse">
                     <thead>
-                        <tr class="bg-gray-100 border-b text-sm text-gray-700">
-                            <th class="py-2.5 px-4 text-center">اسم الطالب</th>
-                            <th class="py-2.5 px-4 text-center">رقم الهاتف</th>
+                        <tr class="bg-gray-100 border-b text-sm">
+                            <th class="py-2.5 px-4 text-center">الاسم</th>
+                            <th class="py-2.5 px-4 text-center">الرقم</th>
                             <th class="py-2.5 px-4 text-center">الحالة</th>
-                            <th class="py-2.5 px-4 text-center">إجراء يدوي</th>
+                            <th class="py-2.5 px-4 text-center">إجراء</th>
                         </tr>
                     </thead>
-                    <tbody id="attendanceTableBody">
-                    </tbody>
+                    <tbody id="attendanceTableBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal تسجيل طالب -->
+    <div id="enrollStudentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4 text-green-700">🎓 تسجيل طالب في الكورس</h3>
+            <form id="enrollForm" onsubmit="enrollStudent(event)">
+                <input type="text" id="enrollPhone" required placeholder="01xxxxxxxxx" class="w-full px-3 py-2 border rounded-lg outline-none" dir="ltr">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="document.getElementById('enrollStudentModal').classList.add('hidden')" class="bg-gray-300 px-4 py-2 rounded-lg font-bold">إلغاء</button>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold">تسجيل</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -154,300 +123,234 @@
     <script>
         const token = localStorage.getItem('token');
         const userRole = localStorage.getItem('role');
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('id');
+        const courseId = new URLSearchParams(window.location.search).get('id');
+        let currentLectureId = null;
 
-        if (!token || !courseId) {
-            window.location.href = 'dashboard.html';
-        }
+        if (!token || !courseId) window.location.href = 'dashboard.html';
+        if (userRole === 'admin') document.getElementById('adminLectureControls').classList.remove('hidden');
 
-        if (userRole === 'admin') {
-            document.getElementById('adminLectureControls').classList.remove('hidden');
-        }
-
-        function showToast(message, type = 'success') {
+        function showToast(msg, type='success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icon = type === 'success' ? '✅' : '⚠️';
-            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            toast.innerHTML = `<span>${type==='success'?'✅':'⚠️'}</span> <span>${msg}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(()=>toast.remove(), 400); }, 3000);
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
-        function openAddLectureModal() { document.getElementById('addLectureModal').classList.remove('hidden'); }
-        function closeAddLectureModal() { document.getElementById('addLectureModal').classList.add('hidden'); }
-        function closeAttendanceModal() { document.getElementById('attendanceModal').classList.add('hidden'); }
-        function openEnrollModal() { document.getElementById('enrollStudentModal').classList.remove('hidden'); }
-        function closeEnrollModal() { document.getElementById('enrollStudentModal').classList.add('hidden'); }
-
-        function setupAttendanceSection() {
-            const container = document.getElementById('attendanceActionContainer');
-            if (userRole === 'admin') {
-                container.innerHTML = `
-                    <button onclick="openAttendanceModal()" class="bg-purple-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-purple-700 transition shadow-md text-sm flex items-center gap-2">
-                        📊 تقرير الحضور وتوليد الكود
-                    </button>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="flex gap-2 items-center w-full">
-                        <input type="text" id="courseAttendanceCode" placeholder="اكتب كود الحضور" class="px-3 py-2 border rounded-xl text-sm outline-none w-48" maxlength="10">
-                        <button onclick="submitStudentAttendance()" class="bg-green-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-green-700 transition text-sm">
-                            تسجيل الحضور
-                        </button>
-                    </div>
-                `;
-            }
-        }
+        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
         function getEmbedUrl(url) {
             if (!url) return '';
-            if (url.includes('watch?v=')) {
-                return url.replace('watch?v=', 'embed/');
-            }
-            if (url.includes('youtu.be/')) {
-                const videoId = url.split('/').pop().split('?')[0];
-                return `https://www.youtube.com/embed/${videoId}`;
-            }
+            if (url.includes('watch?v=')) return url.replace('watch?v=', 'embed/');
+            if (url.includes('youtu.be/')) return `https://www.youtube.com/embed/${url.split('/').pop().split('?')[0]}`;
             return url;
         }
 
         async function fetchCourseDetails() {
             try {
-                const courseRes = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/courses/${courseId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const courseRes = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/courses/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const courseData = await courseRes.json();
                 if (courseRes.ok) {
                     document.getElementById('courseTitle').textContent = courseData.title;
                     document.getElementById('courseDesc').textContent = courseData.description || 'لا يوجد وصف متاح';
                 }
 
-                const lecRes = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${courseId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const lecRes = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const lectures = await lecRes.json();
                 const container = document.getElementById('lecturesContainer');
 
                 if (lecRes.ok && lectures.length > 0) {
-                    container.innerHTML = lectures.map((lec, index) => `
-                        <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between">
+                    container.innerHTML = lectures.map((lec, index) => {
+                        const videoContent = lec.videoUrl 
+                            ? `<iframe src="${getEmbedUrl(lec.videoUrl)}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>`
+                            : `<div class="w-full h-full flex flex-col items-center justify-center bg-gray-800 text-gray-300 p-4 text-center">
+                                 <span class="text-4xl mb-2">📹</span>
+                                 <p class="font-bold">فيديو المحاضرة لم يتوفر بعد</p>
+                                 <p class="text-xs mt-1 text-gray-400">يمكنك تسجيل الحضور بالأسفل</p>
+                               </div>`;
+
+                        return `
+                        <div class="bg-white p-5 rounded-xl shadow-md border flex flex-col justify-between">
                             <div>
                                 <h4 class="text-lg font-bold text-[#8b0000] mb-2">المحاضرة ${index + 1}: ${lec.title}</h4>
-                                <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4 flex items-center justify-center text-white">
-                                    <iframe src="${getEmbedUrl(lec.videoUrl)}" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+                                <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4 relative">
+                                    ${videoContent}
                                 </div>
                             </div>
-                            ${userRole === 'admin' ? `
-                                <div class="flex justify-end mt-2">
-                                    <button onclick="deleteLecture('${lec._id}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-red-700 transition text-sm">
-                                        🗑️ حذف المحاضرة
-                                    </button>
-                                </div>
-                            ` : ''}
+                            <div class="mt-2 w-full">
+                                ${userRole === 'admin' ? `
+                                    <div class="flex flex-wrap gap-2 justify-between w-full border-t pt-3">
+                                        <button onclick="openAttendanceModal('${lec._id}')" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm">📊 تقرير الحضور</button>
+                                        <div class="flex gap-2">
+                                            <button onclick="openEditLectureModal('${lec._id}', '${lec.title}', '${lec.videoUrl || ''}')" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm">✏️ تعديل</button>
+                                            <button onclick="deleteLecture('${lec._id}')" class="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm">🗑️ حذف</button>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <div class="flex gap-2 items-center w-full bg-gray-50 p-2 rounded-lg border">
+                                        <input type="text" id="code-${lec._id}" placeholder="اكتب كود الحضور" class="px-3 py-1.5 border rounded-lg text-sm w-full outline-none" maxlength="10">
+                                        <button onclick="submitStudentAttendance('${lec._id}')" class="bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm whitespace-nowrap">تسجيل</button>
+                                    </div>
+                                `}
+                            </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 } else {
-                    container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-6">لا توجد محاضرات مضافة لهذا الكورس حتى الآن. (يمكنك تسجيل الحضور بالأعلى)</p>';
+                    container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-6">لا توجد محاضرات مضافة لهذا الكورس.</p>';
                 }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر وجلب المحاضرات', 'error');
-            }
+            } catch (err) { showToast('خطأ في الاتصال بالسيرفر', 'error'); }
         }
 
-        async function submitStudentAttendance() {
-            const codeInput = document.getElementById('courseAttendanceCode');
-            const code = codeInput.value.trim();
+        // --- دوال إضافة وتعديل المحاضرات ---
+        function openAddLectureModal() {
+            document.getElementById('editLectureId').value = '';
+            document.getElementById('lectureTitleInput').value = '';
+            document.getElementById('lectureVideoInput').value = '';
+            document.getElementById('lectureModalTitle').textContent = 'إضافة محاضرة جديدة';
+            document.getElementById('lectureModal').classList.remove('hidden');
+        }
 
-            if (!code) {
-                showToast('برجاء إدخال كود الحضور أولاً', 'error');
-                return;
-            }
+        function openEditLectureModal(id, title, videoUrl) {
+            document.getElementById('editLectureId').value = id;
+            document.getElementById('lectureTitleInput').value = title;
+            document.getElementById('lectureVideoInput').value = videoUrl === 'undefined' ? '' : videoUrl;
+            document.getElementById('lectureModalTitle').textContent = 'تعديل المحاضرة (إضافة فيديو)';
+            document.getElementById('lectureModal').classList.remove('hidden');
+        }
+
+        function closeLectureModal() { document.getElementById('lectureModal').classList.add('hidden'); }
+
+        document.getElementById('lectureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editLectureId').value;
+            const title = document.getElementById('lectureTitleInput').value;
+            const videoUrl = document.getElementById('lectureVideoInput').value;
+            
+            const method = id ? 'PUT' : 'POST';
+            const endpoint = id ? `/api/lectures/${id}` : `/api/lectures/${courseId}`;
 
             try {
-                const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/record-course', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ courseId, code })
+                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app${endpoint}`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ title, videoUrl })
                 });
-
-                const data = await response.json();
-
                 if (response.ok) {
-                    showToast(data.message || 'تم تسجيل الحضور بنجاح!', 'success');
-                    codeInput.value = '';
+                    showToast('تم الحفظ بنجاح', 'success');
+                    closeLectureModal();
+                    fetchCourseDetails();
                 } else {
-                    showToast(data.message || 'فشل تسجيل الحضور، تأكد من صحة الكود', 'error');
+                    showToast('حدث خطأ أثناء الحفظ', 'error');
                 }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر', 'error');
-            }
-        }
+            } catch (err) { showToast('خطأ في الاتصال', 'error'); }
+        });
 
-        async function openAttendanceModal() {
+        // --- دوال الحضور ---
+        async function openAttendanceModal(lectureId) {
+            currentLectureId = lectureId;
             document.getElementById('attendanceModal').classList.remove('hidden');
-            await fetchAttendanceReport();
+            fetchAttendanceReport(lectureId);
         }
 
-        async function fetchAttendanceReport() {
+        async function fetchAttendanceReport(lectureId) {
             try {
-                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/course-report/${courseId}`, {
+                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/report/${courseId}/${lectureId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
-                
                 if (response.ok) {
-                    const codeDisplay = document.getElementById('attendanceCodeDisplay');
-                    if (data.attendanceCode) {
-                        codeDisplay.textContent = data.attendanceCode;
-                        codeDisplay.className = "text-xl font-bold text-green-600 tracking-widest";
-                    } else {
-                        codeDisplay.textContent = "لم يتم توليده بعد";
-                        codeDisplay.className = "text-lg font-bold text-red-700";
-                    }
-
+                    document.getElementById('attendanceCodeDisplay').textContent = data.attendanceCode || "لم يتم توليده";
+                    document.getElementById('attendanceCodeDisplay').className = data.attendanceCode ? "text-xl font-bold text-green-600 tracking-widest" : "text-lg font-bold text-red-700";
+                    
                     const tbody = document.getElementById('attendanceTableBody');
                     if (data.report && data.report.length > 0) {
                         tbody.innerHTML = data.report.map(item => `
                             <tr class="border-b">
-                                <td class="py-2 px-4 text-center font-bold text-gray-700">${item.name}</td>
-                                <td class="py-2 px-4 text-center font-bold text-gray-700" dir="ltr">${item.phone}</td>
-                                <td class="py-2 px-4 text-center">
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.status === 'present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                        ${item.status === 'present' ? 'حاضر' : 'غائب'}
+                                <td class="py-2.5 px-4 text-center font-bold">${item.name}</td>
+                                <td class="py-2.5 px-4 text-center font-bold text-gray-700" dir="ltr">${item.phone}</td>
+                                <td class="py-2.5 px-4 text-center">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.status==='present'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">
+                                        ${item.status==='present'?'حاضر':'غائب'}
                                     </span>
                                 </td>
-                                <td class="py-2 px-4 text-center">
-                                    <button onclick="updateAttendanceManual('${item.studentId}', '${item.status === 'present' ? 'absent' : 'present'}')" 
-                                        class="px-3 py-1 rounded-lg text-white font-bold text-xs ${item.status === 'present' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} transition">
-                                        ${item.status === 'present' ? 'تسجيل غياب' : 'تسجيل حضور'}
+                                <td class="py-2.5 px-4 text-center">
+                                    <button onclick="updateManual('${item.studentId}', '${lectureId}', '${item.status==='present'?'absent':'present'}')" 
+                                        class="px-3 py-1 text-xs rounded-lg text-white font-bold transition ${item.status==='present'?'bg-red-600 hover:bg-red-700':'bg-green-600 hover:bg-green-700'}">
+                                        ${item.status==='present'?'تسجيل غياب':'تسجيل حضور'}
                                     </button>
                                 </td>
                             </tr>
                         `).join('');
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">لا توجد طلاب مسجلين.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">لا يوجد طلاب مسجلين.</td></tr>';
                     }
                 }
-            } catch (err) {
-                console.error('خطأ في جلب تقرير الحضور:', err);
-            }
+            } catch(e) { console.error(e); }
         }
 
         async function generateAttendanceCode() {
+            if (!currentLectureId) return;
             try {
-                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/generate-course-code/${courseId}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/generate-code/${currentLectureId}`, {
+                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    showToast('تم توليد كود الحضور بنجاح!', 'success');
-                    fetchAttendanceReport();
+                if (res.ok) {
+                    showToast('تم التوليد بنجاح', 'success'); 
+                    fetchAttendanceReport(currentLectureId); 
                 } else {
-                    showToast(data.message || 'فشل توليد الكود', 'error');
+                    showToast('خطأ في توليد الكود', 'error');
                 }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر', 'error');
-            }
+            } catch(err) { showToast('خطأ بالاتصال', 'error'); }
         }
 
-        async function updateAttendanceManual(studentId, action) {
+        async function submitStudentAttendance(lectureId) {
+            const code = document.getElementById(`code-${lectureId}`).value.trim();
+            if(!code) return showToast('برجاء إدخال الكود', 'error');
             try {
-                const response = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/manual-course-record', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ studentId, courseId, action })
+                const res = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/record', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ lectureId, code })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    showToast('تم تحديث حالة الحضور بنجاح', 'success');
-                    fetchAttendanceReport();
-                } else {
-                    showToast(data.message || 'فشل التحديث', 'error');
-                }
-            } catch (err) {
-                showToast('خطأ في الاتصال بالسيرفر', 'error');
-            }
+                const data = await res.json();
+                showToast(data.message, res.ok ? 'success' : 'error');
+            } catch(err) { showToast('خطأ بالاتصال', 'error'); }
         }
 
-        document.getElementById('addLectureForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('lectureTitle').value;
-            const videoUrl = document.getElementById('lectureVideoUrl'.value);
-
+        async function updateManual(studentId, lectureId, action) {
             try {
-                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${courseId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ title, videoUrl })
+                await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/manual-record', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ studentId, lectureId, action })
                 });
-                if (response.ok) {
-                    showToast('تم إضافة المحاضرة بنجاح!', 'success');
-                    closeAddLectureModal();
-                    document.getElementById('addLectureForm').reset();
-                    fetchCourseDetails();
-                } else {
-                    showToast('فشل إضافة المحاضرة', 'error');
-                }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر', 'error');
-            }
-        });
-
-        document.getElementById('enrollStudentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const phone = document.getElementById('enrollPhone').value;
-
-            try {
-                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/courses/${courseId}/enroll`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ phone })
-                });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showToast('تم اشتراك الطالب بنجاح!', 'success');
-                    closeEnrollModal();
-                    document.getElementById('enrollStudentForm').reset();
-                } else {
-                    showToast(data.message || 'فشل اشتراك الطالب', 'error');
-                }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر', 'error');
-            }
-        });
+                fetchAttendanceReport(lectureId);
+            } catch(err) { showToast('خطأ', 'error'); }
+        }
 
         async function deleteLecture(lectureId) {
-            if (!confirm('هل أنت متأكد من حذف هذه المحاضرة؟')) return;
-            try {
-                const response = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${lectureId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    showToast('تم حذف المحاضرة بنجاح', 'success');
-                    fetchCourseDetails();
-                } else {
-                    showToast('فشل حذف المحاضرة', 'error');
-                }
-            } catch (err) {
-                showToast('تعذر الاتصال بالسيرفر', 'error');
+            if(!confirm('هل أنت متأكد من حذف المحاضرة؟')) return;
+            await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/lectures/${lectureId}`, {
+                method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+            });
+            fetchCourseDetails();
+        }
+
+        async function enrollStudent(e) {
+            e.preventDefault();
+            const phone = document.getElementById('enrollPhone').value;
+            const res = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/courses/${courseId}/enroll`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ phone })
+            });
+            if (res.ok) { 
+                showToast('تم التسجيل بنجاح', 'success'); 
+                document.getElementById('enrollStudentModal').classList.add('hidden'); 
+            } else {
+                showToast('حدث خطأ بالتسجيل', 'error');
             }
         }
 
-        setupAttendanceSection();
         fetchCourseDetails();
     </script>
 </body>
