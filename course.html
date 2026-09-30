@@ -6,6 +6,10 @@
     <title>تفاصيل الكورس - مركز لوغوس</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- مكتبة تحويل HTML إلى PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f7f3ec; color: #2b2b2b; }
         .toast-container { position: fixed; bottom: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
@@ -37,10 +41,12 @@
 
         <div id="adminLectureControls" class="bg-white p-4 rounded-xl shadow border border-blue-200 mb-6 hidden flex flex-wrap justify-between items-center gap-4">
             <div>
-                <h3 class="font-bold text-blue-900">إدارة المحاضرات</h3>
-                <p class="text-xs text-gray-500">أضف محاضرة (ممكن بدون فيديو) لتسجيل الحضور في الكنيسة، وعدلها لاحقاً لإضافة الفيديو.</p>
+                <h3 class="font-bold text-blue-900">إدارة الكورس</h3>
+                <p class="text-xs text-gray-500">أضف محاضرات وحمل تقارير الحضور المجمعة.</p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
+                <!-- الزرار الجديد بتاع الـ PDF -->
+                <button onclick="downloadPDFReport()" class="bg-red-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-800 text-sm shadow-md">📄 تحميل تقرير الكورس PDF</button>
                 <button onclick="document.getElementById('enrollStudentModal').classList.remove('hidden')" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 text-sm shadow-md">🎓 تسجيل طالب</button>
                 <button onclick="openAddLectureModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 text-sm shadow-md">➕ محاضرة جديدة</button>
             </div>
@@ -72,7 +78,7 @@
         </div>
     </div>
 
-    <!-- Modal تقرير الحضور -->
+    <!-- Modal تقرير حضور محاضرة واحدة -->
     <div id="attendanceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-2xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -119,6 +125,9 @@
     </div>
 
     <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Container مخفي لتوليد الـ PDF من الداتا -->
+    <div id="pdfContent" style="display:none;"></div>
 
     <script>
         const token = localStorage.getItem('token');
@@ -203,7 +212,75 @@
             } catch (err) { showToast('خطأ في الاتصال بالسيرفر', 'error'); }
         }
 
-        // --- دوال إضافة وتعديل المحاضرات ---
+        // إنشاء وتحميل الـ PDF الخاص بالكورس
+        async function downloadPDFReport() {
+            try {
+                showToast('جاري تجهيز التقرير، يرجى الانتظار...', 'success');
+                
+                // جلب الداتا المجمعة من السيرفر
+                const res = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/aggregate-report/${courseId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error();
+
+                const courseTitle = document.getElementById('courseTitle').textContent;
+
+                // بناء هيكل HTML مخفي للتقرير
+                const printDiv = document.createElement('div');
+                printDiv.style.padding = '20px';
+                printDiv.style.fontFamily = "'Tajawal', sans-serif";
+                printDiv.style.direction = 'rtl';
+                printDiv.style.textAlign = 'right';
+                printDiv.style.backgroundColor = '#ffffff';
+
+                printDiv.innerHTML = `
+                    <h2 style="text-align: center; color: #8b0000; margin-bottom: 5px;">مركز لوغوس للكورسات المتخصصة</h2>
+                    <h3 style="text-align: center; margin-bottom: 20px;">تقرير حضور: ${courseTitle}</h3>
+                    <p style="text-align: center; margin-bottom: 20px; font-weight: bold;">إجمالي المحاضرات حتى الآن: ${data.totalLectures}</p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; text-align: right;" border="1">
+                        <thead style="background-color: #f3f4f6;">
+                            <tr>
+                                <th style="padding: 12px; border: 1px solid #ddd; width: 25%;">اسم الطالب</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; width: 20%;">رقم الهاتف</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; width: 40%;">المحاضرات التي تم حضورها</th>
+                                <th style="padding: 12px; border: 1px solid #ddd; width: 15%; text-align: center;">إجمالي الحضور</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.report.map(student => `
+                                <tr>
+                                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">${student.name}</td>
+                                    <td style="padding: 12px; border: 1px solid #ddd;" dir="ltr">${student.phone}</td>
+                                    <td style="padding: 12px; border: 1px solid #ddd; font-size: 13px; color: #4b5563;">${student.attendedLectures}</td>
+                                    <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: bold; font-size: 16px;">${student.totalAttended}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                // تحويل لـ PDF
+                const opt = {
+                    margin:       10,
+                    filename:     `تقرير_حضور_${courseTitle}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(printDiv).set(opt).save().then(() => {
+                    showToast('تم تنزيل التقرير بنجاح!', 'success');
+                });
+
+            } catch (err) {
+                showToast('تعذر تحميل التقرير، تأكد من اتصالك', 'error');
+            }
+        }
+
+        // --- باقي دوال الكورس المعتادة ---
         function openAddLectureModal() {
             document.getElementById('editLectureId').value = '';
             document.getElementById('lectureTitleInput').value = '';
@@ -241,13 +318,10 @@
                     showToast('تم الحفظ بنجاح', 'success');
                     closeLectureModal();
                     fetchCourseDetails();
-                } else {
-                    showToast('حدث خطأ أثناء الحفظ', 'error');
-                }
+                } else showToast('حدث خطأ أثناء الحفظ', 'error');
             } catch (err) { showToast('خطأ في الاتصال', 'error'); }
         });
 
-        // --- دوال الحضور ---
         async function openAttendanceModal(lectureId) {
             currentLectureId = lectureId;
             document.getElementById('attendanceModal').classList.remove('hidden');
@@ -283,49 +357,36 @@
                                 </td>
                             </tr>
                         `).join('');
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">لا يوجد طلاب مسجلين.</td></tr>';
-                    }
+                    } else tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">لا يوجد طلاب مسجلين.</td></tr>';
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         async function generateAttendanceCode() {
             if (!currentLectureId) return;
-            try {
-                const res = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/generate-code/${currentLectureId}`, {
-                    method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    showToast('تم التوليد بنجاح', 'success'); 
-                    fetchAttendanceReport(currentLectureId); 
-                } else {
-                    showToast('خطأ في توليد الكود', 'error');
-                }
-            } catch(err) { showToast('خطأ بالاتصال', 'error'); }
+            const res = await fetch(`https://logos-backend-production-c4ad.up.railway.app/api/attendance/generate-code/${currentLectureId}`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) { showToast('تم التوليد بنجاح', 'success'); fetchAttendanceReport(currentLectureId); }
         }
 
         async function submitStudentAttendance(lectureId) {
             const code = document.getElementById(`code-${lectureId}`).value.trim();
             if(!code) return showToast('برجاء إدخال الكود', 'error');
-            try {
-                const res = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/record', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ lectureId, code })
-                });
-                const data = await res.json();
-                showToast(data.message, res.ok ? 'success' : 'error');
-            } catch(err) { showToast('خطأ بالاتصال', 'error'); }
+            const res = await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/record', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ lectureId, code })
+            });
+            const data = await res.json();
+            showToast(data.message, res.ok ? 'success' : 'error');
         }
 
         async function updateManual(studentId, lectureId, action) {
-            try {
-                await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/manual-record', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ studentId, lectureId, action })
-                });
-                fetchAttendanceReport(lectureId);
-            } catch(err) { showToast('خطأ', 'error'); }
+            await fetch('https://logos-backend-production-c4ad.up.railway.app/api/attendance/manual-record', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ studentId, lectureId, action })
+            });
+            fetchAttendanceReport(lectureId);
         }
 
         async function deleteLecture(lectureId) {
@@ -346,9 +407,7 @@
             if (res.ok) { 
                 showToast('تم التسجيل بنجاح', 'success'); 
                 document.getElementById('enrollStudentModal').classList.add('hidden'); 
-            } else {
-                showToast('حدث خطأ بالتسجيل', 'error');
-            }
+            } else showToast('حدث خطأ بالتسجيل', 'error');
         }
 
         fetchCourseDetails();
