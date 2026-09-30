@@ -104,7 +104,7 @@
 
     <!-- Modal تقرير الحضور (للأدمن) -->
     <div id="attendanceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4 border-b pb-2">
                 <h3 class="text-xl font-bold text-[#8b0000]">📊 تقرير حضور المحاضرة</h3>
                 <button onclick="closeAttendanceModal()" class="text-gray-500 hover:text-gray-700 font-bold text-xl">✕</button>
@@ -124,7 +124,8 @@
                 <table class="w-full text-right border-collapse">
                     <thead>
                         <tr class="bg-gray-100 border-b text-sm text-gray-700">
-                            <th class="py-2.5 px-4 text-center">رقم الطالب</th>
+                            <th class="py-2.5 px-4 text-center">اسم الطالب</th>
+                            <th class="py-2.5 px-4 text-center">رقم الهاتف</th>
                             <th class="py-2.5 px-4 text-center">الحالة</th>
                             <th class="py-2.5 px-4 text-center">إجراء يدوي</th>
                         </tr>
@@ -242,7 +243,6 @@
             }
         }
 
-        // دالة تسجيل الحضور للطالب بالكود (متصلة بمسار /record في الباك إند)
         async function submitStudentAttendance(lectureId) {
             const codeInput = document.getElementById(`code-${lectureId}`);
             const code = codeInput.value.trim();
@@ -302,6 +302,7 @@
                     if (data.report && data.report.length > 0) {
                         tbody.innerHTML = data.report.map(item => `
                             <tr class="border-b">
+                                <td class="py-2 px-4 text-center font-bold text-gray-700">${item.name}</td>
                                 <td class="py-2 px-4 text-center font-bold text-gray-700" dir="ltr">${item.phone}</td>
                                 <td class="py-2 px-4 text-center">
                                     <span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.status === 'present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
@@ -317,7 +318,7 @@
                             </tr>
                         `).join('');
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">لا توجد طلاب مسجلين.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">لا توجد طلاب مسجلين.</td></tr>';
                     }
                 }
             } catch (err) {
